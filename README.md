@@ -1,3 +1,7 @@
+# good-console-payload
+
+This is a fork of good-console that logs payload and headers as well.
+
 # good-console
 
 `good-console` is a transform stream useful for turning [good](https://github.com/hapijs/good) server events into formatted strings.

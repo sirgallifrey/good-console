@@ -1,7 +1,7 @@
 {
-  "name": "good-console",
+  "name": "good-console-payload",
   "version": "7.1.0",
-  "repository": "git://github.com/hapijs/good-console",
+  "repository": "git://github.com/sirgallifrey/good-console",
   "description": "Console broadcasting for Good process monitor",
   "main": "lib/index.js",
   "scripts": {

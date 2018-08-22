@@ -67,6 +67,29 @@ internals.response = {
     }
 };
 
+internals.responseWithPayloadAndHeader = Object.assign({}, internals.response, {
+    headers: {
+        host: '127.0.0.1',
+        connection: 'keep-alive',
+        'content-length': '0',
+        'cache-control': 'no-cache',
+        origin: 'some-origin',
+        'some-token': '90fcb190-26b2-c761-5509-76f9fefae66f',
+        accept: '*/*',
+        'accept-encoding': 'gzip, deflate, br',
+        'accept-language': 'en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7'
+    },
+    requestPayload: {
+        id: 5,
+        name: 'Bob',
+        age: '24'
+    },
+    responsePayload: {
+        id: 6,
+        items: ['a', 'b']
+    }
+});
+
 internals.request = {
     event: 'request',
     timestamp: 1458264810957,
@@ -234,6 +257,97 @@ describe('GoodConsole', () => {
 
                     expect(out.data).to.have.length(1);
                     expect(out.data[0]).to.be.equal('160318/013330.957, (1458264811279:localhost:16014:ilx17kv4:10001) [response] http://localhost:61253: \u001b[1;34mhead\u001b[0m /data {"name":"adam"} \u001b[32m200\u001b[0m (150ms)\n');
+                    done();
+                });
+            });
+
+
+            it('returns a formatted string for "response" events with "headers" property', { plan: 2 }, (done) => {
+
+                const reporter = new GoodConsole();
+                const out = new Streams.Writer();
+                const reader = new Streams.Reader();
+
+                reader.pipe(reporter).pipe(out);
+
+                const response = Object.assign({}, internals.responseWithPayloadAndHeader);
+                delete response.requestPayload;
+                delete response.responsePayload;
+
+                reader.push(response);
+                reader.push(null);
+
+                reader.once('end', () => {
+
+                    expect(out.data).to.have.length(1);
+                    expect(out.data[0]).to.be.equal('160318/013330.957, (1458264811279:localhost:16014:ilx17kv4:10001) [response] http://localhost:61253: \u001b[1;33mpost\u001b[0m /data {"name":"adam"} \u001b[32m200\u001b[0m (150ms) headers: {"host":"127.0.0.1","connection":"keep-alive","content-length":"0","cache-control":"no-cache","origin":"some-origin","some-token":"90fcb190-26b2-c761-5509-76f9fefae66f","accept":"*/*","accept-encoding":"gzip, deflate, br","accept-language":"en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7"}\n');
+                    done();
+                });
+            });
+
+            it('returns a formatted string for "response" events with "requestPayload" property', { plan: 2 }, (done) => {
+
+                const reporter = new GoodConsole();
+                const out = new Streams.Writer();
+                const reader = new Streams.Reader();
+
+                reader.pipe(reporter).pipe(out);
+
+                const response = Object.assign({}, internals.responseWithPayloadAndHeader);
+                delete response.headers;
+                delete response.responsePayload;
+
+                reader.push(response);
+                reader.push(null);
+
+                reader.once('end', () => {
+
+                    expect(out.data).to.have.length(1);
+                    expect(out.data[0]).to.be.equal('160318/013330.957, (1458264811279:localhost:16014:ilx17kv4:10001) [response] http://localhost:61253: \u001b[1;33mpost\u001b[0m /data {"name":"adam"} \u001b[32m200\u001b[0m (150ms) requestPayload: {"id":5,"name":"Bob","age":"24"}\n');
+                    done();
+                });
+            });
+
+            it('returns a formatted string for "response" events with "responsePayload" property', { plan: 2 }, (done) => {
+
+                const reporter = new GoodConsole();
+                const out = new Streams.Writer();
+                const reader = new Streams.Reader();
+
+                reader.pipe(reporter).pipe(out);
+
+                const response = Object.assign({}, internals.responseWithPayloadAndHeader);
+                delete response.headers;
+                delete response.requestPayload;
+
+                reader.push(response);
+                reader.push(null);
+
+                reader.once('end', () => {
+
+                    expect(out.data).to.have.length(1);
+                    expect(out.data[0]).to.be.equal('160318/013330.957, (1458264811279:localhost:16014:ilx17kv4:10001) [response] http://localhost:61253: \u001b[1;33mpost\u001b[0m /data {"name":"adam"} \u001b[32m200\u001b[0m (150ms) responsePayload: {"id":6,"items":["a","b"]}\n');
+                    done();
+                });
+            });
+
+            it('returns a formatted string for "response" events with "headers", "requestPayload" and "responsePayload" properties', { plan: 2 }, (done) => {
+
+                const reporter = new GoodConsole();
+                const out = new Streams.Writer();
+                const reader = new Streams.Reader();
+
+                reader.pipe(reporter).pipe(out);
+
+                const response = Object.assign({}, internals.responseWithPayloadAndHeader);
+
+                reader.push(response);
+                reader.push(null);
+
+                reader.once('end', () => {
+
+                    expect(out.data).to.have.length(1);
+                    expect(out.data[0]).to.be.equal('160318/013330.957, (1458264811279:localhost:16014:ilx17kv4:10001) [response] http://localhost:61253: \u001b[1;33mpost\u001b[0m /data {"name":"adam"} \u001b[32m200\u001b[0m (150ms) headers: {"host":"127.0.0.1","connection":"keep-alive","content-length":"0","cache-control":"no-cache","origin":"some-origin","some-token":"90fcb190-26b2-c761-5509-76f9fefae66f","accept":"*/*","accept-encoding":"gzip, deflate, br","accept-language":"en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7"} requestPayload: {"id":5,"name":"Bob","age":"24"} responsePayload: {"id":6,"items":["a","b"]}\n');
                     done();
                 });
             });
